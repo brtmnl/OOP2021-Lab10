@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.HashSet;
+import java.util.Arrays;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -58,10 +60,11 @@ public final class LambdaUtilities {
      *         otherwise.
      */
     public static <T> List<Optional<T>> optFilter(final List<T> list, final Predicate<T> pre) {
-        /*
-         * Suggestion: consider Optional.filter
-         */
-        return null;
+        final List<Optional<T>> l = new ArrayList<>(list.size());
+        list.forEach(t -> {
+            l.add(Optional.ofNullable(t).filter(pre));
+        });
+        return l;
     }
 
     /**
@@ -80,7 +83,15 @@ public final class LambdaUtilities {
         /*
          * Suggestion: consider Map.merge
          */
-        return null;
+        final Map<R, Set<T>> map = new HashMap<R, Set<T>>();
+
+        list.forEach(t -> {
+            map.merge(op.apply(t), new HashSet<T>(Arrays.asList(t)), (v1, v2) -> {
+                v1.addAll(v2);
+                return v1;
+            });
+        });
+        return map;
     }
 
     /**
@@ -101,7 +112,12 @@ public final class LambdaUtilities {
          * 
          * Keep in mind that a map can be iterated through its forEach method
          */
-        return null;
+        final Map<K, V> returnMap = new HashMap<>();
+        map.forEach((k,v) -> {
+            returnMap.put(k, v.orElseGet(def));
+
+        });
+        return returnMap;
     }
 
     /**
